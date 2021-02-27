@@ -21,6 +21,49 @@ void printMatrix(vector<vector<int>> matrix, int size)
     }
 }
 
+vector<vector<int>> compressRight(vector<vector<int>> matrix, int size)
+{
+    vector<vector<int>> new_matrix(size, vector<int>(size));
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            new_matrix[i][j] = 0;
+        }
+    }
+    for (int i = 0; i < size; i++)
+    {
+        int last_pos = size - 1;
+        for (int j = size - 1; j >= 0; j--)
+        {
+            if (matrix[i][j] != 0)
+            {
+                new_matrix[i][last_pos] = matrix[i][j];
+                last_pos--;
+            }
+        }
+    }
+
+    return new_matrix;
+}
+
+vector<vector<int>> mergeRight(vector<vector<int>> matrix, int size)
+{
+
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = size - 1; j >= 0; j--)
+        {
+            if ((matrix[i][j] == matrix[i][j - 1]) && (matrix[i][j] != 0))
+            {
+                matrix[i][j] = matrix[i][j] + matrix[i][j - 1];
+                matrix[i][j - 1] = 0;
+            }
+        }
+    }
+    return matrix;
+}
+
 vector<vector<int>> compressLeft(vector<vector<int>> matrix, int size)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
@@ -104,10 +147,21 @@ int main()
         }
 
         matrix = compressLeft(matrix, size);
-        matrix = mergeLeft(matrix, size);
-        cout << "output left";
+        cout << "compressLeft:";
         printMatrix(matrix, size);
 
+        matrix = mergeLeft(matrix, size);
+        cout << "mergeLeft:";
+        printMatrix(matrix, size);
+        /*
+        matrix = compressRight(matrix, size);
+        cout << "compressRight:";
+        printMatrix(matrix, size);
+
+        matrix = mergeRight(matrix, size);
+        cout << "mergeRight";
+        printMatrix(matrix, size);
+        */
         x = y = 0;
         count++;
     }
