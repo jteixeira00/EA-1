@@ -21,6 +21,92 @@ void printMatrix(vector<vector<int>> matrix, int size)
     }
 }
 
+vector<vector<int>> compressDown(vector<vector<int>> matrix, int size)
+{
+    vector<vector<int>> new_matrix(size, vector<int>(size));
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            new_matrix[j][i] = 0;
+        }
+    }
+    for (int i = 0; i < size; i++)
+    {
+        int last_pos = size - 1;
+        for (int j = size - 1; j >= 0; j--)
+        {
+            if (matrix[j][i] != 0)
+            {
+                new_matrix[last_pos][i] = matrix[j][i];
+                last_pos--;
+            }
+        }
+    }
+
+    return new_matrix;
+}
+
+vector<vector<int>> mergeDown(vector<vector<int>> matrix, int size)
+{
+
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = size - 1; j > 0; j--)
+        {
+            if ((matrix[j][i] == matrix[j - 1][i]) && (matrix[j][i] != 0))
+            {
+                matrix[j][i] = matrix[j][i] + matrix[j - 1][i];
+                matrix[j - 1][i] = 0;
+            }
+        }
+    }
+    return matrix;
+}
+
+vector<vector<int>> compressUp(vector<vector<int>> matrix, int size)
+{
+    vector<vector<int>> new_matrix(size, vector<int>(size));
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            new_matrix[i][j] = 0;
+        }
+    }
+    for (int i = 0; i < size; i++)
+    {
+        int last_pos = 0;
+        for (int j = 0; j < size; j++)
+        {
+            if (matrix[j][i] != 0)
+            {
+                new_matrix[last_pos][i] = matrix[j][i];
+                last_pos++;
+            }
+        }
+    }
+
+    return new_matrix;
+}
+
+vector<vector<int>> mergeUp(vector<vector<int>> matrix, int size)
+{
+
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size - 1; j++)
+        {
+            if ((matrix[j][i] == matrix[j + 1][i]) && (matrix[j][i] != 0))
+            {
+                matrix[j][i] = matrix[j + 1][i] + matrix[j][i];
+                matrix[j + 1][i] = 0;
+            }
+        }
+    }
+    return matrix;
+}
+
 vector<vector<int>> compressRight(vector<vector<int>> matrix, int size)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
@@ -52,7 +138,7 @@ vector<vector<int>> mergeRight(vector<vector<int>> matrix, int size)
 
     for (int i = 0; i < size; i++)
     {
-        for (int j = size - 1; j >= 0; j--)
+        for (int j = size - 1; j > 0; j--)
         {
             if ((matrix[i][j] == matrix[i][j - 1]) && (matrix[i][j] != 0))
             {
@@ -146,6 +232,23 @@ int main()
             }
         }
 
+        matrix = compressDown(matrix, size);
+        cout << "compressDown:";
+        printMatrix(matrix, size);
+
+        matrix = mergeDown(matrix, size);
+        cout << "mergeDown:";
+        printMatrix(matrix, size);
+
+        /*
+        matrix = compressUp(matrix, size);
+        cout << "compressUp:";
+        printMatrix(matrix, size);
+
+        matrix = mergeUp(matrix, size);
+        cout << "mergeDownsUp:";
+        printMatrix(matrix, size);
+        
         matrix = compressLeft(matrix, size);
         cout << "compressLeft:";
         printMatrix(matrix, size);
@@ -153,7 +256,7 @@ int main()
         matrix = mergeLeft(matrix, size);
         cout << "mergeLeft:";
         printMatrix(matrix, size);
-        /*
+        
         matrix = compressRight(matrix, size);
         cout << "compressRight:";
         printMatrix(matrix, size);
