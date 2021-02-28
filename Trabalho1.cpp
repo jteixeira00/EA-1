@@ -8,6 +8,14 @@
 
 using namespace std;
 
+int min_moves;
+int maxSlides;
+
+void MergeCompress(vector<vector<int>>, int, int);
+void checkSolved(vector<vector<int>>, int, int);
+
+//Utilities
+
 void printMatrix(vector<vector<int>> matrix, int size)
 {
     cout << "\n";
@@ -20,6 +28,9 @@ void printMatrix(vector<vector<int>> matrix, int size)
         cout << "\n";
     }
 }
+
+//MOVEMENT FUNCTIONS
+//return com std::tuple para devolver (array, changeBool)
 
 vector<vector<int>> compressDown(vector<vector<int>> matrix, int size)
 {
@@ -47,9 +58,9 @@ vector<vector<int>> compressDown(vector<vector<int>> matrix, int size)
     return new_matrix;
 }
 
-vector<vector<int>> mergeDown(vector<vector<int>> matrix, int size)
+vector<vector<int>> mergeDown(vector<vector<int>> matrix, int size, int n)
 {
-
+    int check_change = 0; //para saber se houve changes
     for (int i = 0; i < size; i++)
     {
         for (int j = size - 1; j > 0; j--)
@@ -58,8 +69,13 @@ vector<vector<int>> mergeDown(vector<vector<int>> matrix, int size)
             {
                 matrix[j][i] = matrix[j][i] + matrix[j - 1][i];
                 matrix[j - 1][i] = 0;
+                check_change = 1;
             }
         }
+    }
+    if (check_change)
+    {
+        checkSolved(matrix, size, n);
     }
     return matrix;
 }
@@ -90,9 +106,9 @@ vector<vector<int>> compressUp(vector<vector<int>> matrix, int size)
     return new_matrix;
 }
 
-vector<vector<int>> mergeUp(vector<vector<int>> matrix, int size)
+vector<vector<int>> mergeUp(vector<vector<int>> matrix, int size, int n)
 {
-
+    int check_change = 0; //para saber se houve changes
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size - 1; j++)
@@ -101,8 +117,13 @@ vector<vector<int>> mergeUp(vector<vector<int>> matrix, int size)
             {
                 matrix[j][i] = matrix[j + 1][i] + matrix[j][i];
                 matrix[j + 1][i] = 0;
+                check_change = 1;
             }
         }
+    }
+    if (check_change)
+    {
+        checkSolved(matrix, size, n);
     }
     return matrix;
 }
@@ -133,9 +154,9 @@ vector<vector<int>> compressRight(vector<vector<int>> matrix, int size)
     return new_matrix;
 }
 
-vector<vector<int>> mergeRight(vector<vector<int>> matrix, int size)
+vector<vector<int>> mergeRight(vector<vector<int>> matrix, int size, int n)
 {
-
+    int check_change = 0; //para saber se houve changes
     for (int i = 0; i < size; i++)
     {
         for (int j = size - 1; j > 0; j--)
@@ -144,8 +165,13 @@ vector<vector<int>> mergeRight(vector<vector<int>> matrix, int size)
             {
                 matrix[i][j] = matrix[i][j] + matrix[i][j - 1];
                 matrix[i][j - 1] = 0;
+                check_change = 1;
             }
         }
+    }
+    if (check_change)
+    {
+        checkSolved(matrix, size, n);
     }
     return matrix;
 }
@@ -176,9 +202,9 @@ vector<vector<int>> compressLeft(vector<vector<int>> matrix, int size)
     return new_matrix;
 }
 
-vector<vector<int>> mergeLeft(vector<vector<int>> matrix, int size)
+vector<vector<int>> mergeLeft(vector<vector<int>> matrix, int size, int n)
 {
-
+    int check_change = 0; //para saber se houve changes
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size - 1; j++)
@@ -187,10 +213,74 @@ vector<vector<int>> mergeLeft(vector<vector<int>> matrix, int size)
             {
                 matrix[i][j] = matrix[i][j] + matrix[i][j + 1];
                 matrix[i][j + 1] = 0;
+                check_change = 1;
             }
         }
     }
+    if (check_change == 1)
+    {
+        checkSolved(matrix, size, n);
+    }
     return matrix;
+}
+
+void MergeCompress(vector<vector<int>> matrix, int size, int n)
+{
+    n++;
+
+    vector<vector<int>> matrix_og;
+    matrix_og = matrix;
+    /*
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            matrix_og[i][j] = matrix[i][j];
+        }
+    }
+    */
+    matrix = compressRight(matrix_og, size);
+    mergeRight(matrix, size, n);
+
+    matrix = compressDown(matrix_og, size);
+    mergeDown(matrix, size, n);
+
+    matrix = compressUp(matrix_og, size);
+    mergeUp(matrix, size, n);
+
+    matrix = compressLeft(matrix_og, size);
+    mergeLeft(matrix, size, n);
+}
+
+void checkSolved(vector<vector<int>> matrix, int size, int n_moves)
+{
+    //possivel otimizar -> verificar apenas as arestas da matriz
+    //maybe verificar apenas a aresta onde encontra o primeiro valor?
+    int n = 0;
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            if (matrix[i][j] != 0)
+            {
+                if (n == 0)
+                {
+                    n = 1;
+                }
+                else
+                {
+                    MergeCompress(matrix, size, n_moves);
+                    return;
+                }
+            }
+        }
+    }
+    if (n_moves < min_moves)
+    {
+        min_moves = n_moves;
+        return;
+    }
+    return;
 }
 
 int main()
@@ -204,7 +294,6 @@ int main()
     int max;
     int count = 0;
     int num;
-    int maxSlides;
 
     int x = 0;
     int y = 0;
@@ -216,6 +305,7 @@ int main()
 
         cin >> size >> maxSlides;
         vector<vector<int>> matrix(size, vector<int>(size));
+        min_moves = maxSlides + 1;
         while (y != size)
         {
 
@@ -231,7 +321,17 @@ int main()
                 x = 0;
             }
         }
-
+        MergeCompress(matrix, size, 0);
+        if (min_moves <= maxSlides)
+        {
+            cout << min_moves << "\n";
+        }
+        else
+        {
+            cout << "no solution\n";
+        }
+        /*
+#pragma region prints
         matrix = compressDown(matrix, size);
         cout << "compressDown:";
         printMatrix(matrix, size);
@@ -240,7 +340,7 @@ int main()
         cout << "mergeDown:";
         printMatrix(matrix, size);
 
-        /*
+        
         matrix = compressUp(matrix, size);
         cout << "compressUp:";
         printMatrix(matrix, size);
@@ -264,7 +364,12 @@ int main()
         matrix = mergeRight(matrix, size);
         cout << "mergeRight";
         printMatrix(matrix, size);
-        */
+        
+
+#pragma endregion
+
+*/
+
         x = y = 0;
         count++;
     }
