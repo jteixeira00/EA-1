@@ -206,23 +206,86 @@ vector<vector<int>> mergeLeft(vector<vector<int>> matrix, int size)
     return matrix;
 }
 
+int possible(vector<vector<int>> matrix, int size)
+{
+    vector<int> matrix_flattened;
+    vector<int> flat_old;
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            matrix_flattened.push_back(matrix[i][j]);
+        }
+    }
+
+    do
+    {
+
+        sort(matrix_flattened.begin(), matrix_flattened.end(), greater<int>());
+        flat_old = matrix_flattened;
+        /*
+        while (matrix_flattened[size - 1] == 0) //compress
+        {
+            matrix_flattened.pop_back();
+            size--;
+        }
+        */
+        for (int i = 0; i < (size * size) - 1; i++) //merge
+        {
+            if ((matrix_flattened[i] == matrix_flattened[i + 1]) && (matrix_flattened[i] != 0))
+            {
+                matrix_flattened[i] = matrix_flattened[i] * 2;
+                matrix_flattened[i + 1] = 0;
+            }
+        }
+
+        sort(matrix_flattened.begin(), matrix_flattened.end(), greater<int>()); //compress
+                                                                                /*
+        for (int i = 0; i < matrix_flattened.size(); i++)
+        {
+            cout << matrix_flattened[i] << " ";
+        }
+        cout << "\n";
+
+        for (int i = 0; i < flat_old.size(); i++)
+        {
+            cout << flat_old[i] << " ";
+        }
+        cout << "\n";
+        
+        while (matrix_flattened[size - 1] == 0)
+        {
+            matrix_flattened.pop_back();
+            size--;
+        }
+        */
+
+    } while (matrix_flattened != flat_old);
+
+    if ((matrix_flattened[1] == 0) && (matrix_flattened[0] != 0))
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 void MergeCompress(vector<vector<int>> matrix, int size, int n)
 {
-    if (n++ > maxSlides)
+    if (n++ >= min_moves)
     {
         return;
     }
     vector<vector<int>> matrix_og;
     matrix_og = matrix;
-    /*
-    for (int i = 0; i < size; i++)
+
+    if (!possible(matrix, size))
     {
-        for (int j = 0; j < size; j++)
-        {
-            matrix_og[i][j] = matrix[i][j];
-        }
+        return;
     }
-    */
+
     matrix = compressRight(matrix_og, size);
     matrix = mergeRight(matrix, size);
     matrix = compressRight(matrix, size);
@@ -325,6 +388,7 @@ int main()
                 x = 0;
             }
         }
+        //cout << "is it possible:" << possible(matrix, size) << "\n";
         MergeCompress(matrix, size, 0);
         if (min_moves <= maxSlides)
         {
