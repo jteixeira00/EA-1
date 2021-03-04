@@ -11,8 +11,8 @@ using namespace std;
 int min_moves;
 int maxSlides;
 
-void MergeCompress(vector<vector<int>>, int, int);
-void checkSolved(vector<vector<int>>, int, int);
+void MergeCompress(vector<vector<int>>, int, int, vector<vector<int>>);
+void checkSolved(vector<vector<int>>, int, int, vector<vector<int>>);
 
 //Utilities
 
@@ -272,7 +272,7 @@ int possible(vector<vector<int>> matrix, int size)
     }
 }
 
-void MergeCompress(vector<vector<int>> matrix, int size, int n)
+void MergeCompress(vector<vector<int>> matrix, int size, int n, vector<vector<int>> matrix_old)
 {
     if (n++ >= min_moves)
     {
@@ -289,37 +289,37 @@ void MergeCompress(vector<vector<int>> matrix, int size, int n)
     matrix = compressRight(matrix_og, size);
     matrix = mergeRight(matrix, size);
     matrix = compressRight(matrix, size);
-    if (matrix != matrix_og)
+    if ((matrix != matrix_og) && (matrix != matrix_old))
     {
-        checkSolved(matrix, size, n);
+        checkSolved(matrix, size, n, matrix_og);
     }
 
     matrix = compressDown(matrix_og, size);
     matrix = mergeDown(matrix, size);
     matrix = compressDown(matrix, size);
-    if (matrix != matrix_og)
+    if ((matrix != matrix_og) && (matrix != matrix_old))
     {
-        checkSolved(matrix, size, n);
+        checkSolved(matrix, size, n, matrix_og);
     }
 
     matrix = compressUp(matrix_og, size);
     matrix = mergeUp(matrix, size);
     matrix = compressUp(matrix, size);
-    if (matrix != matrix_og)
+    if ((matrix != matrix_og) && (matrix != matrix_old))
     {
-        checkSolved(matrix, size, n);
+        checkSolved(matrix, size, n, matrix_og);
     }
 
     matrix = compressLeft(matrix_og, size);
     matrix = mergeLeft(matrix, size);
     matrix = compressLeft(matrix, size);
-    if (matrix != matrix_og)
+    if ((matrix != matrix_og) && (matrix != matrix_old))
     {
-        checkSolved(matrix, size, n);
+        checkSolved(matrix, size, n, matrix_og);
     }
 }
 
-void checkSolved(vector<vector<int>> matrix, int size, int n_moves)
+void checkSolved(vector<vector<int>> matrix, int size, int n_moves, vector<vector<int>> matrix_old)
 {
     //possivel otimizar -> verificar apenas as arestas da matriz
     //maybe verificar apenas a aresta onde encontra o primeiro valor?
@@ -336,7 +336,7 @@ void checkSolved(vector<vector<int>> matrix, int size, int n_moves)
                 }
                 else
                 {
-                    MergeCompress(matrix, size, n_moves);
+                    MergeCompress(matrix, size, n_moves, matrix_old);
                     return;
                 }
             }
@@ -389,7 +389,15 @@ int main()
             }
         }
         //cout << "is it possible:" << possible(matrix, size) << "\n";
-        MergeCompress(matrix, size, 0);
+        vector<vector<int>> new_matrix(size, vector<int>(size));
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                new_matrix[j][i] = 0;
+            }
+        }
+        MergeCompress(matrix, size, 0, new_matrix);
         if (min_moves <= maxSlides)
         {
             cout << min_moves << "\n";
