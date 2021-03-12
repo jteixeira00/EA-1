@@ -12,7 +12,7 @@ int min_moves;
 int maxSlides;
 
 void MergeCompress(vector<vector<int>>, int, int, vector<vector<int>>);
-void checkSolved(vector<vector<int>> &, int, int, vector<vector<int>> &);
+void checkSolved(vector<vector<int>> &, int, int, vector<vector<int>> &, int, int);
 
 //Utilities
 
@@ -32,7 +32,7 @@ void printMatrix(vector<vector<int>> matrix, int size)
 //MOVEMENT FUNCTIONS
 //return com std::tuple para devolver (array, changeBool)
 
-void compressDown(vector<vector<int>> &matrix, int size)
+void compressDown(vector<vector<int>> &matrix, int size, int &n)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -51,6 +51,7 @@ void compressDown(vector<vector<int>> &matrix, int size)
             {
                 new_matrix[last_pos][i] = matrix[j][i];
                 last_pos--;
+                n++;
             }
         }
     }
@@ -76,7 +77,7 @@ void mergeDown(vector<vector<int>> &matrix, int size)
     return;
 }
 
-void compressUp(vector<vector<int>> &matrix, int size)
+void compressUp(vector<vector<int>> &matrix, int size, int &n)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -95,6 +96,7 @@ void compressUp(vector<vector<int>> &matrix, int size)
             {
                 new_matrix[last_pos][i] = matrix[j][i];
                 last_pos++;
+                n++;
             }
         }
     }
@@ -120,7 +122,7 @@ void mergeUp(vector<vector<int>> &matrix, int size)
     return;
 }
 
-void compressRight(vector<vector<int>> &matrix, int size)
+void compressRight(vector<vector<int>> &matrix, int size, int &n)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -139,6 +141,7 @@ void compressRight(vector<vector<int>> &matrix, int size)
             {
                 new_matrix[i][last_pos] = matrix[i][j];
                 last_pos--;
+                n++;
             }
         }
     }
@@ -163,7 +166,7 @@ void mergeRight(vector<vector<int>> &matrix, int size)
     return;
 }
 
-void compressLeft(vector<vector<int>> &matrix, int size)
+void compressLeft(vector<vector<int>> &matrix, int size, int &n)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -182,6 +185,7 @@ void compressLeft(vector<vector<int>> &matrix, int size)
             {
                 new_matrix[i][last_pos] = matrix[i][j];
                 last_pos++;
+                n++;
             }
         }
     }
@@ -242,84 +246,134 @@ int possible(vector<vector<int>> &matrix, int size)
     }
 }
 
-void MergeCompress(vector<vector<int>> matrix, int size, int n, vector<vector<int>> matrix_old)
+void MergeCompress(vector<vector<int>> matrix, int size, int n, vector<vector<int>> matrix_old, int last_move)
 {
     if (n++ >= min_moves)
     {
         return;
     }
+    int n1 = 0;
     vector<vector<int>> matrix_og;
     matrix_og = matrix;
 
-    if (!possible(matrix, size))
+    switch (last_move)
     {
-        return;
-    }
-    matrix = matrix_og;
-    compressRight(matrix, size);
-    mergeRight(matrix, size);
-    compressRight(matrix, size);
-    if ((matrix != matrix_og) && (matrix != matrix_old))
-    {
-        checkSolved(matrix, size, n, matrix_og);
-    }
+    case 1: //ultimo move vertical
+        matrix = matrix_og;
+        n1 = 0;
+        compressRight(matrix, size, n1);
+        mergeRight(matrix, size);
+        n1 = 0;
+        compressRight(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 2);
+        }
 
-    matrix = matrix_og;
-    compressDown(matrix, size);
-    mergeDown(matrix, size);
-    compressDown(matrix, size);
-    if ((matrix != matrix_og) && (matrix != matrix_old))
-    {
-        checkSolved(matrix, size, n, matrix_og);
-    }
+        matrix = matrix_og;
+        n1 = 0;
+        compressLeft(matrix, size, n1);
+        mergeLeft(matrix, size);
+        n1 = 0;
+        compressLeft(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 2);
+        }
 
-    matrix = matrix_og;
-    compressUp(matrix, size);
-    mergeUp(matrix, size);
-    compressUp(matrix, size);
-    if ((matrix != matrix_og) && (matrix != matrix_old))
-    {
-        checkSolved(matrix, size, n, matrix_og);
-    }
+        matrix = matrix_og;
+        n1 = 0;
+        compressDown(matrix, size, n1);
+        mergeDown(matrix, size);
+        n1 = 0;
+        compressDown(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 1);
+        }
 
-    matrix = matrix_og;
-    compressLeft(matrix, size);
-    mergeLeft(matrix, size);
-    compressLeft(matrix, size);
-    if ((matrix != matrix_og) && (matrix != matrix_old))
-    {
-        checkSolved(matrix, size, n, matrix_og);
+        matrix = matrix_og;
+        n1 = 0;
+        compressUp(matrix, size, n1);
+        mergeUp(matrix, size);
+        n1 = 0;
+        compressUp(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 1);
+        }
+
+        break;
+
+    case 2: //ultimo move horizontal
+
+        matrix = matrix_og;
+        n1 = 0;
+        compressDown(matrix, size, n1);
+        mergeDown(matrix, size);
+        n1 = 0;
+        compressDown(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 1);
+        }
+
+        matrix = matrix_og;
+        n1 = 0;
+        compressUp(matrix, size, n1);
+        mergeUp(matrix, size);
+        n1 = 0;
+        compressUp(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 1);
+        }
+
+        matrix = matrix_og;
+        n1 = 0;
+        compressRight(matrix, size, n1);
+        mergeRight(matrix, size);
+        n1 = 0;
+        compressRight(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 2);
+        }
+
+        matrix = matrix_og;
+        n1 = 0;
+        compressLeft(matrix, size, n1);
+        mergeLeft(matrix, size);
+        n1 = 0;
+        compressLeft(matrix, size, n1);
+        if ((matrix != matrix_og) && (matrix != matrix_old))
+        {
+            checkSolved(matrix, size, n, matrix_og, n1, 1);
+        }
+
+        break;
     }
 }
 
-void checkSolved(vector<vector<int>> &matrix, int size, int n_moves, vector<vector<int>> &matrix_old)
+void checkSolved(vector<vector<int>> &matrix, int size, int n_moves, vector<vector<int>> &matrix_old, int n, int last_move)
 {
     //possivel otimizar -> verificar apenas as arestas da matriz
     //maybe verificar apenas a aresta onde encontra o primeiro valor?
-    int n = 0;
-    for (int i = 0; i < size; i++)
+
+    if (n == 1)
     {
-        for (int j = 0; j < size; j++)
+        if (n_moves < min_moves)
         {
-            if (matrix[i][j] != 0)
-            {
-                if (n == 0)
-                {
-                    n = 1;
-                }
-                else
-                {
-                    MergeCompress(matrix, size, n_moves, matrix_old);
-                    return;
-                }
-            }
+            min_moves = n_moves;
+            return;
         }
     }
-    if (n_moves < min_moves)
+    else
     {
-        min_moves = n_moves;
+        MergeCompress(matrix, size, n_moves, matrix_old, last_move);
         return;
     }
+
     return;
 }
 
@@ -371,34 +425,41 @@ int main()
                 new_matrix[j][i] = 0;
             }
         }
-        MergeCompress(matrix, size, 0, new_matrix);
-        if (min_moves <= 0.6 * maxSlides)
+        if (!possible(matrix, size))
         {
-            cout << min_moves << "\n";
+            cout << "no solution\n";
         }
         else
         {
-
-            min_moves = maxSlides * 0.8 + 1;
-            MergeCompress(matrix, size, 0, new_matrix);
-
-            if (min_moves <= maxSlides * 0.8)
+            MergeCompress(matrix, size, 0, new_matrix, 1);
+            if (min_moves <= 0.6 * maxSlides)
             {
                 cout << min_moves << "\n";
             }
-
             else
             {
 
-                min_moves = maxSlides + 1;
-                MergeCompress(matrix, size, 0, new_matrix);
-                if (min_moves <= maxSlides)
+                min_moves = maxSlides * 0.8 + 1;
+                MergeCompress(matrix, size, 0, new_matrix, 1);
+
+                if (min_moves <= maxSlides * 0.8)
                 {
                     cout << min_moves << "\n";
                 }
+
                 else
                 {
-                    cout << "no solution\n";
+
+                    min_moves = maxSlides + 1;
+                    MergeCompress(matrix, size, 0, new_matrix, 1);
+                    if (min_moves <= maxSlides)
+                    {
+                        cout << min_moves << "\n";
+                    }
+                    else
+                    {
+                        cout << "no solution\n";
+                    }
                 }
             }
         }
