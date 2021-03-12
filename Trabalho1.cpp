@@ -32,7 +32,7 @@ void printMatrix(vector<vector<int>> matrix, int size)
 //MOVEMENT FUNCTIONS
 //return com std::tuple para devolver (array, changeBool)
 
-vector<vector<int>> compressDown(vector<vector<int>> matrix, int size)
+void compressDown(vector<vector<int>> &matrix, int size)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -54,8 +54,8 @@ vector<vector<int>> compressDown(vector<vector<int>> matrix, int size)
             }
         }
     }
-
-    return new_matrix;
+    matrix = new_matrix;
+    return;
 }
 
 void mergeDown(vector<vector<int>> &matrix, int size)
@@ -76,7 +76,7 @@ void mergeDown(vector<vector<int>> &matrix, int size)
     return;
 }
 
-vector<vector<int>> compressUp(vector<vector<int>> matrix, int size)
+void compressUp(vector<vector<int>> &matrix, int size)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -98,8 +98,8 @@ vector<vector<int>> compressUp(vector<vector<int>> matrix, int size)
             }
         }
     }
-
-    return new_matrix;
+    matrix = new_matrix;
+    return;
 }
 
 void mergeUp(vector<vector<int>> &matrix, int size)
@@ -120,7 +120,7 @@ void mergeUp(vector<vector<int>> &matrix, int size)
     return;
 }
 
-vector<vector<int>> compressRight(vector<vector<int>> matrix, int size)
+void compressRight(vector<vector<int>> &matrix, int size)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -142,8 +142,8 @@ vector<vector<int>> compressRight(vector<vector<int>> matrix, int size)
             }
         }
     }
-
-    return new_matrix;
+    matrix = new_matrix;
+    return;
 }
 
 void mergeRight(vector<vector<int>> &matrix, int size)
@@ -163,7 +163,7 @@ void mergeRight(vector<vector<int>> &matrix, int size)
     return;
 }
 
-vector<vector<int>> compressLeft(vector<vector<int>> matrix, int size)
+void compressLeft(vector<vector<int>> &matrix, int size)
 {
     vector<vector<int>> new_matrix(size, vector<int>(size));
     for (int i = 0; i < size; i++)
@@ -185,8 +185,8 @@ vector<vector<int>> compressLeft(vector<vector<int>> matrix, int size)
             }
         }
     }
-
-    return new_matrix;
+    matrix = new_matrix;
+    return;
 }
 
 void mergeLeft(vector<vector<int>> &matrix, int size)
@@ -220,16 +220,8 @@ int possible(vector<vector<int>> &matrix, int size)
 
     do
     {
-
         sort(matrix_flattened.begin(), matrix_flattened.end(), greater<int>());
         flat_old = matrix_flattened;
-        /*
-        while (matrix_flattened[size - 1] == 0) //compress
-        {
-            matrix_flattened.pop_back();
-            size--;
-        }
-        */
         for (int i = 0; i < (size * size) - 1; i++) //merge
         {
             if ((matrix_flattened[i] == matrix_flattened[i + 1]) && (matrix_flattened[i] != 0))
@@ -238,11 +230,8 @@ int possible(vector<vector<int>> &matrix, int size)
                 matrix_flattened[i + 1] = 0;
             }
         }
-
         sort(matrix_flattened.begin(), matrix_flattened.end(), greater<int>()); //compress
-
     } while (matrix_flattened != flat_old);
-
     if ((matrix_flattened[1] == 0) && (matrix_flattened[0] != 0))
     {
         return 1;
@@ -266,34 +255,37 @@ void MergeCompress(vector<vector<int>> matrix, int size, int n, vector<vector<in
     {
         return;
     }
-
-    matrix = compressRight(matrix_og, size);
+    matrix = matrix_og;
+    compressRight(matrix, size);
     mergeRight(matrix, size);
-    matrix = compressRight(matrix, size);
+    compressRight(matrix, size);
     if ((matrix != matrix_og) && (matrix != matrix_old))
     {
         checkSolved(matrix, size, n, matrix_og);
     }
 
-    matrix = compressDown(matrix_og, size);
+    matrix = matrix_og;
+    compressDown(matrix, size);
     mergeDown(matrix, size);
-    matrix = compressDown(matrix, size);
+    compressDown(matrix, size);
     if ((matrix != matrix_og) && (matrix != matrix_old))
     {
         checkSolved(matrix, size, n, matrix_og);
     }
 
-    matrix = compressUp(matrix_og, size);
+    matrix = matrix_og;
+    compressUp(matrix, size);
     mergeUp(matrix, size);
-    matrix = compressUp(matrix, size);
+    compressUp(matrix, size);
     if ((matrix != matrix_og) && (matrix != matrix_old))
     {
         checkSolved(matrix, size, n, matrix_og);
     }
 
-    matrix = compressLeft(matrix_og, size);
+    matrix = matrix_og;
+    compressLeft(matrix, size);
     mergeLeft(matrix, size);
-    matrix = compressLeft(matrix, size);
+    compressLeft(matrix, size);
     if ((matrix != matrix_og) && (matrix != matrix_old))
     {
         checkSolved(matrix, size, n, matrix_og);
